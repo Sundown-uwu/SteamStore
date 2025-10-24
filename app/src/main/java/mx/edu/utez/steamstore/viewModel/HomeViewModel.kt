@@ -14,7 +14,7 @@ import mx.edu.utez.steamstore.model.Juego
 class HomeViewModel : ViewModel() {
 
     // Un StateFlow mutable y privado que contiene la lista de juegos.
-    // Solo el ViewModel puede modificar esta lista.
+    // Solo el ViewModel puede modificar esta lista.....
     private val _juegos = MutableStateFlow<List<Juego>>(emptyList())
 
     // Un StateFlow público e inmutable que expone la lista de juegos a la UI.

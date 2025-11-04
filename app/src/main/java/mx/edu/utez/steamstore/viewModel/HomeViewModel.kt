@@ -1,5 +1,4 @@
-
-package mx.edu.utez.steamstore.viewmodel
+package mx.edu.utez.steamstore.viewModel
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

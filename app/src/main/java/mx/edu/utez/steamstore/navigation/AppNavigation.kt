@@ -1,14 +1,19 @@
 package mx.edu.utez.steamstore.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import mx.edu.utez.steamstore.ui.screens.AddJuegoScreen
+import mx.edu.utez.steamstore.ui.screens.DetalleJuegoScreen
 import mx.edu.utez.steamstore.ui.screens.HomeScreen
 import mx.edu.utez.steamstore.ui.screens.LoginScreen
 import mx.edu.utez.steamstore.ui.screens.RecuperarScreen
 import mx.edu.utez.steamstore.ui.screens.RegistroScreen
+import mx.edu.utez.steamstore.viewModel.HomeViewModel
 
 /**
  * Define el gráfico de navegación para toda la aplicación.
@@ -18,6 +23,8 @@ import mx.edu.utez.steamstore.ui.screens.RegistroScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val homeViewModel: HomeViewModel =
+        viewModel(factory = HomeViewModel.Factory)
     NavHost(navController = navController, startDestination = "login") {
         composable("login") {
             LoginScreen(
@@ -38,11 +45,29 @@ fun AppNavigation() {
         }
         composable("home") {
             HomeScreen(
-                onNavigateToAddJuego = { navController.navigate("add_juego") }
+                homeViewModel = homeViewModel,
+                onNavigateToAddJuego = { navController.navigate("add_juego") },
+                onNavigateToDetalle = { juegoId -> navController.navigate("detalle_juego/$juegoId") }
             )
         }
         composable("add_juego") {
-            AddJuegoScreen(onBack = { navController.popBackStack() })
+            AddJuegoScreen(
+                homeViewModel = homeViewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = "detalle_juego/{juegoId}",
+            arguments = listOf(
+                navArgument("juegoId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val juegoId = backStackEntry.arguments?.getLong("juegoId") ?: return@composable
+            DetalleJuegoScreen(
+                juegoId = juegoId,
+                homeViewModel = homeViewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

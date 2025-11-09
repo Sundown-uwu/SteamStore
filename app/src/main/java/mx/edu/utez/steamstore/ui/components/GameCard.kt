@@ -56,7 +56,10 @@ fun GameCard(juego: Juego, onClick: () -> Unit) {
 
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(text = juego.titulo, style = MaterialTheme.typography.titleLarge)
-                Text(text = "$${juego.precio}", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                val precioFormateado = remember(juego.precio) {
+                    String.format("$%.2f", juego.precio)
+                }
+                Text(text = precioFormateado, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
             }
         }
     }

@@ -19,15 +19,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import mx.edu.utez.steamstore.ui.components.GameCard
 import mx.edu.utez.steamstore.viewModel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = viewModel(),
-    onNavigateToAddJuego: () -> Unit
+    homeViewModel: HomeViewModel,
+    onNavigateToAddJuego: () -> Unit,
+    onNavigateToDetalle: (Long) -> Unit
 ) {
     val juegos by homeViewModel.juegos.collectAsState()
 
@@ -41,18 +41,28 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(juegos) { juego ->
-                GameCard(
-                    juego = juego,
-                    onClick = { /* Navegar a detalles en un futuro */ }
-                )
+        if (juegos.isEmpty()) {
+            Text(
+                text = "Aún no hay juegos guardados. Usa el botón + para añadir uno.",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(24.dp)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(juegos) { juego ->
+                    GameCard(
+                        juego = juego,
+                        onClick = { onNavigateToDetalle(juego.id) }
+                    )
+                }
             }
         }
     }

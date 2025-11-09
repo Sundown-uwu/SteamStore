@@ -1,8 +1,17 @@
 package mx.edu.utez.steamstore.viewModel
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import mx.edu.utez.steamstore.SteamStoreApp
+import mx.edu.utez.steamstore.data.JuegoRepository
 import mx.edu.utez.steamstore.model.Juego
 
 /**
@@ -10,35 +19,46 @@ import mx.edu.utez.steamstore.model.Juego
  *
  * Se encarga de gestionar y exponer la lista de juegos a la UI.
  */
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private val juegoRepository: JuegoRepository
+) : ViewModel() {
 
-    // Un StateFlow mutable y privado que contiene la lista de juegos.
-    // Solo el ViewModel puede modificar esta lista.....
-    private val _juegos = MutableStateFlow<List<Juego>>(emptyList())
+    val juegos: StateFlow<List<Juego>> =
+        juegoRepository
+            .observarJuegos()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
 
-    // Un StateFlow público e inmutable que expone la lista de juegos a la UI.
-    // La UI observa este Flow para reaccionar a los cambios de datos.
-    val juegos: StateFlow<List<Juego>> = _juegos
-
-    /**
-     * El bloque init se ejecuta cuando se crea una instancia del ViewModel.
-     * Aquí se inicia la carga de los datos iniciales.
-     */
-    init {
-        cargarJuegosDeEjemplo()
+    fun guardarJuego(juego: Juego) {
+        viewModelScope.launch {
+            juegoRepository.guardarJuego(juego)
+        }
     }
 
-    /**
-     * Función privada que crea una lista de juegos de ejemplo y la asigna
-     * al StateFlow `_juegos`.
-     */
-    private fun cargarJuegosDeEjemplo() {
-        _juegos.value = listOf(
-            Juego("1", "Cyberpunk 2077", "Juego de rol de acción y aventura de mundo abierto.", "drawable/cyberpunk", 59.99),
-            Juego("2", "Elden Ring", "Juego de rol de acción de fantasía oscura.", "drawable/eldenring", 59.99),
-            Juego("3", "The Witcher 3: Wild Hunt", "Juego de rol de acción de mundo abierto.", "drawable/witcher3", 39.99),
-            Juego("4", "Red Dead Redemption 2", "Juego de acción y aventura de mundo abierto.", "drawable/rdr2", 59.99),
-            Juego("5", "Stardew Valley", "Juego de simulación de agricultura.", "drawable/stardewvalley", 14.99)
-        )
+    fun obtenerJuegoPorId(id: Long): Flow<Juego?> = juegoRepository.observarJuegoPorId(id)
+
+    fun actualizarJuego(juego: Juego) {
+        viewModelScope.launch {
+            juegoRepository.actualizarJuego(juego)
+        }
+    }
+
+    fun eliminarJuego(juego: Juego) {
+        viewModelScope.launch {
+            juegoRepository.eliminarJuego(juego)
+        }
+    }
+
+    companion object {
+        val Factory = viewModelFactory {
+            initializer {
+                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as SteamStoreApp)
+                val repository = application.container.juegoRepository
+                HomeViewModel(repository)
+            }
+        }
     }
 }

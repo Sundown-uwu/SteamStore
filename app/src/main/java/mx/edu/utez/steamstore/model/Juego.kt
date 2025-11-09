@@ -11,7 +11,7 @@ package mx.edu.utez.steamstore.model
  * @property precio El precio del juego.
  */
 data class Juego(
-    val id: String,
+    val id: Long = 0,
     val titulo: String,
     val descripcion: String,
     val urlPortada: String, // Se usará para un ID de drawable

@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import mx.edu.utez.steamstore.SteamStoreApp
 import mx.edu.utez.steamstore.data.JuegoRepository
 import mx.edu.utez.steamstore.model.Juego
+import java.io.File
 
 /**
  * ViewModel para la pantalla principal (Home).
@@ -32,17 +33,23 @@ class HomeViewModel(
                 initialValue = emptyList()
             )
 
-    fun guardarJuego(juego: Juego) {
+    fun guardarJuego(juego: Juego, imagenFile: File? = null) {
         viewModelScope.launch {
-            juegoRepository.guardarJuego(juego)
+            juegoRepository.guardarJuego(juego, imagenFile)
         }
     }
 
     fun obtenerJuegoPorId(id: Long): Flow<Juego?> = juegoRepository.observarJuegoPorId(id)
 
-    fun actualizarJuego(juego: Juego) {
+    fun actualizarJuego(juego: Juego, imagenFile: File? = null) {
         viewModelScope.launch {
-            juegoRepository.actualizarJuego(juego)
+            juegoRepository.actualizarJuego(juego, imagenFile)
+        }
+    }
+
+    fun sincronizarDesdeApi() {
+        viewModelScope.launch {
+            juegoRepository.sincronizarDesdeApi()
         }
     }
 
